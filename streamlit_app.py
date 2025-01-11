@@ -8,8 +8,8 @@ def main():
         st.session_state.page = "file"  # Domyślnie strona "file" (Wybór pliku)
     
     if st.session_state.page == "file":
-        data = select_file()  # Wybór pliku
-        if data is not None:  # Jeśli dane zostały załadowane, zmień stronę i odśwież aplikację
+        data = select_file()
+        if data is not None:
             st.session_state.page = "analysis"
             st.rerun()  # Wymuszenie odświeżenia aplikacji
 
@@ -18,6 +18,19 @@ def main():
             select_analysis(st.session_state.data)  # Przejdź do analizy
         else:
             st.write("Brak danych do analizy.")
+        
+    
+
+    elif st.session_state.page == "results":
+        # Przyciski po zakończeniu analizy
+        if st.button("Nowa analiza"):
+            st.session_state.page = "analysis"  # Przejdź do strony wyboru analizy
+            st.rerun()  # Wymuszenie odświeżenia aplikacji
+
+        if st.button("Nowy plik"):
+            st.session_state.page = "file"  # Powróć do strony wyboru pliku
+            st.rerun()  # Wymuszenie odświeżenia aplikacji
+
 
 if __name__ == "__main__":
     main()

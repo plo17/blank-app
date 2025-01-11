@@ -10,12 +10,12 @@ def select_file():
     if uploaded_file is not None:
         # Załaduj dane z pliku CSV
         data = pd.read_csv(uploaded_file)
-        st.session_state.data = data  # Przechowaj dane w session_state
 
-        st.write("## Podgląd danych")
-        st.dataframe(data.head())  # Pokaż podgląd danych
-        st.write("Po załadowaniu pliku, wybierz odpowiednią analizę.")
-        return data  # Zwróć dane do głównej funkcji
+        if 'Grupa' in data.columns and 'VDR FokI' in data.columns and 'BSM' in data.columns:
+            st.session_state.data = data  # Przechowaj dane w session_state
+            return data
+        else:
+            st.error("Plik CSV musi zawierać kolumny: 'Grupa', 'VDR FokI' i 'BSM'.")
     else:
         st.write("Proszę załadować plik CSV, aby rozpocząć.")
         return None  # Zwróć None, gdy nie ma danych
