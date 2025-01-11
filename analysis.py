@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
-
+#patrze czy mozna edytowac
 def chi_square_analysis(data):
     """
     Funkcja wykonująca test Chi-Square na danych.
