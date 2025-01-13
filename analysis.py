@@ -3,7 +3,9 @@ import pandas as pd
 import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
-#patrze czy mozna edytowac
+from scipy.stats import chi2_contingency
+from statsmodels.stats.contingency_tables import Table2x2
+
 def chi_square_analysis(data):
     """
     Funkcja wykonująca test Chi-Square na danych.
@@ -97,74 +99,67 @@ def odds_ratio_analysis(data):
         st.write(f"Kombinacja {key} - Odds Ratio: {value}")
 
 
-    
 
-        
+def hw(data, locus):
+    """
+    Funkcja wykonuje analizę Hardy'ego-Weinberga.
+    """
+    # Definiowanie genotypów na podstawie locus
+    if locus == "VDR FokI":
+        genotypes = ["AA", "AG", "GG"]
+    else:
+        genotypes = ["CC", "CT", "TT"]
+
+    # Zliczanie genotypów
+    aa = data.count(genotypes[0])
+    ab = data.count(genotypes[1])
+    bb = data.count(genotypes[2])
+    
+    # Obliczanie częstości alleli
+    total = aa + ab + bb
+    if total == 0:
+        raise ValueError("Brak danych do analizy.")
+
+    p = (2 * aa + ab) / (2 * total)
+    q = 1 - p
+    
+    # Obliczanie oczekiwanych wartości
+    expected_aa = total * p**2
+    expected_ab = total * 2 * p * q
+    expected_bb = total * q**2
+
+    # Tworzenie list obserwowanych i oczekiwanych wartości
+    observed = [aa, ab, bb]
+    expected = [expected_aa, expected_ab, expected_bb]
+
+    st.markdown("### Wyniki analizy HW:")
+    st.write(f"**Częstość allelu p i q:** p: {p:.4f}, q: {q:.4f}")
+    st.write(f"**Liczebność obserwowana:** AA: {aa}, AB: {ab}, BB: {bb}")
+    st.write(f"**Liczebność oczekiwana:** AA: {expected_aa:.4f}, AB: {expected_ab:.4f}, BB:{expected_bb:.4f}\n")
+    
+    visualise(genotypes, observed, expected)
 
 
 def hw_analysis(data):
     """
-    Funkcja wykonująca analizę Hardy'ego-Weinberga na danych.
+    Funkcja analizuje dane pod kątem HWE dla każdego locus i każdej grupy.
     """
-    st.title("Hardy-Weinberg Analysis")
+    for locus in ['VDR FokI', 'BSM']:
+        for group in ['Cancer', 'Control']:
 
-    # Tworzenie tabeli kontyngencji
-    contingency_table = pd.crosstab(data["Grupa"], data["VDR FokI"])
+            genotypes = data[data['Grupa'] == group][locus].tolist()
+            hw(genotypes, locus)
+      
 
-    # Obliczanie częstości alleli
-    # Liczymy liczbę alleli dominujących (GG) i recesywnych (AG, AA)
-    observed_GG = contingency_table.loc['Cancer', 'GG']
-    observed_AG = contingency_table.loc['Cancer', 'AG']
-    observed_AA = contingency_table.loc['Cancer', 'AA']
+def visualise(genotype, observed, expected):
 
-    total_genotypes = observed_GG + observed_AG + observed_AA
-
-    # Częstość allelu G (dominującego)
-    p = (2 * observed_GG + observed_AG) / (2 * total_genotypes)
-    # Częstość allelu A (recesywnego)
-    q = 1 - p
-
-    # Obliczanie oczekiwanych liczby genotypów na podstawie częstości alleli
-    expected_GG = p**2 * total_genotypes
-    expected_AG = 2 * p * q * total_genotypes
-    expected_AA = q**2 * total_genotypes
-
-    # Obliczanie różnicy procentowej między obserwowanymi a oczekiwanymi wartościami
-    diff_GG = abs(observed_GG - expected_GG) / expected_GG * 100
-    diff_AG = abs(observed_AG - expected_AG) / expected_AG * 100
-    diff_AA = abs(observed_AA - expected_AA) / expected_AA * 100
-
-    # Wyświetlanie wyników
-    st.markdown("### Wyniki analizy:")
-    st.write(f"**Częstość allelu G (p):** {p:.3f}")
-    st.write(f"**Częstość allelu A (q):** {q:.3f}\n")
-    st.write(f"**Oczekiwana liczba GG:** {expected_GG:.2f}")
-    st.write(f"**Oczekiwana liczba AG:** {expected_AG:.2f}")
-    st.write(f"**Oczekiwana liczba AA:** {expected_AA:.2f}\n")
-
-    # Wyświetlanie różnic procentowych
-    st.write(f"**Różnica procentowa GG:** {diff_GG:.2f}%")
-    st.write(f"**Różnica procentowa AG:** {diff_AG:.2f}%")
-    st.write(f"**Różnica procentowa AA:** {diff_AA:.2f}%")
-
-    # Interpretacja wyników
-    if diff_GG < 5 and diff_AG < 5 and diff_AA < 5:
-        st.write("**Interpretacja:** Dane są zgodne z równowagą Hardy'ego-Weinberga.")
-    else:
-        st.write("**Interpretacja:** Dane wskazują na brak równowagi Hardy'ego-Weinberga.")
-
-    # Przygotowanie danych do wykresu
-    labels = ['GG', 'AG', 'AA']
-    observed = [observed_GG, observed_AG, observed_AA]
-    expected = [expected_GG, expected_AG, expected_AA]
-    
     # Wykres słupkowy
     width = 0.35  # Szerokość słupków
 
     # Tworzenie wykresu
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.bar(labels, observed, width, label='Obserwowane', color='skyblue')
-    ax.bar(labels, expected, width, bottom=observed, label='Oczekiwane', color='lightgreen')
+    ax.bar(genotype, observed, width, label='Obserwowane', color='skyblue')
+    ax.bar(genotype, expected, width, bottom=observed, label='Oczekiwane', color='lightgreen')
 
     # Dodanie tytułu i etykiet osi
     ax.set_title('Porównanie obserwowanych i oczekiwanych liczby genotypów')
@@ -173,4 +168,13 @@ def hw_analysis(data):
     ax.legend()
 
     st.pyplot(fig)
-    
+
+
+
+"""    # Obliczanie Odds Ratio między grupą "Cancer" a "Control"
+    for locus in ['VDR', 'FokI', 'BSM']:
+        table = pd.crosstab(data['Grupa'], data[locus])
+        print(f"\nOdds Ratio dla locus {locus}:")
+        for genotype in table.columns:
+            oddsratio = Table2x2(table[[genotype]]).oddsratio
+            print(f"  Genotyp {genotype}: OR = {oddsratio:.4f}")"""
