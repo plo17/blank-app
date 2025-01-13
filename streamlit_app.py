@@ -4,32 +4,36 @@ from menu import select_analysis
 
 def main():
     
+    """
+    Funkcja obsługuje nawigację między różnymi stronami aplikacji Streamlit, 
+    w tym wybór pliku, wybór analizy danych.
+    """
+
     if 'page' not in st.session_state:
-        st.session_state.page = "file"  # Domyślnie strona "file" (Wybór pliku)
+        st.session_state.page = "file"  #domyślna strona
     
     if st.session_state.page == "file":
         data = select_file()
         if data is not None:
             st.session_state.page = "analysis"
-            st.rerun()  # Wymuszenie odświeżenia aplikacji
+            st.rerun()  #odświeżenie aplikacji
 
     elif st.session_state.page == "analysis":
         if 'data' in st.session_state:
-            select_analysis(st.session_state.data)  # Przejdź do analizy
+            select_analysis(st.session_state.data)  # przejscie do analizy
         else:
             st.write("Brak danych do analizy.")
         
-    
 
-    elif st.session_state.page == "results":
-        # Przyciski po zakończeniu analizy
+    elif st.session_state.page == "menu":
+        #przyciski po zakończeniu analizy
         if st.button("Nowa analiza"):
-            st.session_state.page = "analysis"  # Przejdź do strony wyboru analizy
-            st.rerun()  # Wymuszenie odświeżenia aplikacji
+            st.session_state.page = "analysis"  
+            st.rerun()  
 
         if st.button("Nowy plik"):
-            st.session_state.page = "file"  # Powróć do strony wyboru pliku
-            st.rerun()  # Wymuszenie odświeżenia aplikacji
+            st.session_state.page = "file"  
+            st.rerun()  
 
 
 if __name__ == "__main__":
