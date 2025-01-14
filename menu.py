@@ -1,5 +1,5 @@
 import streamlit as st
-from analysis import chi_square_analysis, odds_ratio_analysis, hw_analysis
+from analysis import chi_square_analysis, OR_analysis, HW_analysis
 
 def select_analysis(data):
 
@@ -21,11 +21,11 @@ def select_analysis(data):
         chi_square_analysis(data)
 
     if analysis_option == "Odds ratio":
-        odds_ratio_analysis(data)
+        OR_analysis(data)
 
     elif analysis_option == "Hardy Weinberg":
-        hw_analysis(data)
-
+        HW_analysis(data)
+    
     #dodatkowy przyciski
     if st.button("Powrót"):
         st.session_state.page = "menu"
