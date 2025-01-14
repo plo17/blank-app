@@ -5,20 +5,12 @@ from scipy.stats import chi2
 import matplotlib.pyplot as plt
 from statsmodels.stats.contingency_tables import Table2x2
 
-def chi_square_analysis(data):
-    """
-    Funkcja wykonująca test Chi-Square na danych.
-    Użytkownik wybiera odpowiednie kolumny, a funkcja wyświetla wyniki.
-    """
+def CHI2(data, group_col, value_col):
     st.title("Chi-Square Test")
-
-    # Użytkownik wybiera kolumny do testu
-    group_col = st.selectbox("Select the group column", data.columns)
-    value_col = st.selectbox("Select the value column", [col for col in data.columns if col != group_col])
 
     # Przygotowanie tabeli kontyngencji
     contingency_table = pd.crosstab(data[group_col], data[value_col])
-    st.write("## Contingency Table")
+    st.write("## Tabela kontyngencji")
     st.dataframe(contingency_table)
 
     # Obliczenie Chi-Square (ręczne)
@@ -28,29 +20,27 @@ def chi_square_analysis(data):
     total = observed.sum()
 
     expected = np.outer(row_totals, col_totals) / total
-    chi_square_stat = ((observed - expected) ** 2 / expected).sum()
+    chi2_stat = ((observed - expected) ** 2 / expected).sum()
 
     # Obliczenie p-wartości (przybliżenie przy użyciu rozkładu chi-kwadrat)
     dof = (observed.shape[0] - 1) * (observed.shape[1] - 1)
-    p_value = 1 - chi2.cdf(chi_square_stat, dof)
+    p_value = 1 - chi2.cdf(chi2_stat, dof)
 
     # Wyświetlenie wyników
-    st.write("## Chi-Square Test Results")
-    st.write(f"Chi-Square Statistic: {chi_square_stat:.4f}")
+    st.write("### Chi-Square Test Results")
+    st.write(f"Chi-Square Statistic: {chi2_stat:.4f}")
     st.write(f"p-value: {p_value:.4f}")
 
     # Interpretacja
     alpha = 0.05
     if p_value < alpha:
-        st.write(f"### Result: The result is statistically significant (Reject H₀). The p-value is {p_value:.4f}, which is less than 0.05.")
+        st.write(f"#### The result is statistically significant (Reject H₀). The p-value is {p_value:.4f}, which is less than 0.05.")
     else:
-        st.write(f"### Result: The result is not statistically significant (Fail to reject H₀). The p-value is {p_value:.4f}, which is greater than or equal to 0.05.")
+        st.write(f"#### The result is not statistically significant (Fail to reject H₀). The p-value is {p_value:.4f}, which is greater than or equal to 0.05.")
+    return p_value, chi2_stat
 
+def HW(data, locus, group):
 
-def HW(data, locus):
-    """
-    Funkcja wykonuje analizę Hardy'ego-Weinberga.
-    """
     # Definiowanie genotypów na podstawie locus
     if locus == "VDR FokI":
         genotypes = ["AA", "AG", "GG"]
@@ -82,13 +72,13 @@ def HW(data, locus):
     observed = [aa, ab, bb]
     expected = [expected_aa, expected_ab, expected_bb]
 
-    st.markdown("### Wyniki analizy HW:")
-    st.write(f"**Częstość allelu p i q:** p: {p:.4f}, q: {q:.4f}")
+    st.markdown(f"### Wyniki analizy Hardy'ego-Weinberga\ngrupa: {group}, czynnik: {locus}:")
+    st.write(f"**Częstość allelu p i q:** p: {p:.2f}, q: {q:.2f}")
     st.write(f"**Liczebność obserwowana:** AA: {aa}, AB: {ab}, BB: {bb}")
-    st.write(f"**Liczebność oczekiwana:** AA: {expected_aa:.4f}, AB: {expected_ab:.4f}, BB:{expected_bb:.4f}\n")
+    st.write(f"**Liczebność oczekiwana:** AA: {expected_aa:.2f}, AB: {expected_ab:.2f}, BB:{expected_bb:.2f}\n")
     
     visualise(genotypes, observed, expected)
-
+    return p, q, observed, expected
 
 def visualise(genotype, observed, expected):
 
@@ -110,10 +100,6 @@ def visualise(genotype, observed, expected):
 
 
 def OR(data, locus):
-    """
-    Funkcja oblicza odds ratio oraz przedział ufności 95% 
-    dla danego locus (VDR FokI lub BSM).
-    """
 
     if locus == "VDR FokI":
         table = pd.crosstab(data['VDR FokI'], data['Grupa'])
@@ -151,23 +137,59 @@ def OR_analysis(data):
     """
     Funkcja wykonuje analizę odds ratio 
     dla dwóch loci: 'VDR FokI' oraz 'BSM'.
+    Oznaczenie: A - allel dominujący, 
+                B - allel recesywny.
+    Argumenty:
+        data (DataFrame): Zestaw danych zawierający
+          informacje o genotypach.
+
+    Zwraca:
+        tuple: Iloraz szans (OR) oraz przedział ufności (CI) 
+        dla każdego analizowanego locus.
+
     """
     for locus in ['VDR FokI', 'BSM']:
-        OR(data, locus)
+        OR_value, OR_confint = OR(data, locus)
+    return OR_value, OR_confint
 
 
 def HW_analysis(data):
     """
-    Funkcja analizuje dane pod kątem HWE
-    dla każdego locus i każdej grupy.
+    Analiza równowagi Hardy’ego-Weinberga (HWE) 
+    dla każdego określonego locus i grupy w zestawie danych.
+    Obliczenie częstości alleli oraz porównanie zaobserwowanych
+    i oczekiwanych liczb genotypów.
+
+    Argumenty:
+        data (DataFrame): Zestaw danych zawierający 
+        informacje o genotypach i przynależności do grup.
+
+    Zwraca:
+        tuple: Krotka zawierająca obliczone 
+        częstości alleli (p, q), zaobserwowane liczby genotypów 
+        oraz oczekiwane liczby genotypów dla danej grupy i locus.
     """
 
     for locus in ['VDR FokI', 'BSM']:
         for group in ['Cancer', 'Control']:
 
             genotypes = data[data['Grupa'] == group][locus].tolist()
-            HW(genotypes, locus)
-      
+            p, q, observed, expected = HW(genotypes, locus, group)
+    return p, q, observed, expected
 
+def CHI2_analysis(data):
 
+    """
+    Test Chi-kwadrat dla wybranych kolumn w zestawie danych.
+    Argumenty:
+        data (DataFrame): Zestaw danych zawierający
+        wartości kategoryczne.
+    Zwraca:
+        tuple: p-wartość i wartość statystyki Chi-kwadrat.
+    """
 
+    # Użytkownik wybiera kolumny do testu
+    group_col = st.selectbox("Select the group column", data.columns)
+    value_col = st.selectbox("Select the value column", [col for col in data.columns if col != group_col])
+    p_value, chi2_value = CHI2(data, group_col, value_col)
+    return p_value, chi2_value

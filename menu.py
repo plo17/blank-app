@@ -1,5 +1,5 @@
 import streamlit as st
-from analysis import chi_square_analysis, OR_analysis, HW_analysis
+from analysis import CHI2_analysis, OR_analysis, HW_analysis
 
 def select_analysis(data):
 
@@ -9,16 +9,16 @@ def select_analysis(data):
     współczynnik szans (odds ratio) lub równowagę Hardy'ego-Weinberga.
     """
 
-    st.write("## PODGLĄD DANYCH")
-    st.dataframe(data.head())
-
     st.title("WYBÓR ANALIZY")
-    
     #wybór analizy
     analysis_option = st.selectbox("Wybierz rodzaj analizy", ["-","Chi-Square Test", "Odds ratio", "Hardy Weinberg"])
 
+    st.write("## PODGLĄD DANYCH")
+    st.dataframe(data.head())
+
+    
     if analysis_option == "Chi-Square Test":
-        chi_square_analysis(data)
+        CHI2_analysis(data)
 
     if analysis_option == "Odds ratio":
         OR_analysis(data)
