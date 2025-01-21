@@ -9,11 +9,11 @@ def select_analysis(data):
     współczynnik szans (odds ratio) lub równowagę Hardy'ego-Weinberga.
     """
 
-    st.title("WYBÓR ANALIZY")
+    st.title("ANALYSIS SELECTION")
     #wybór analizy
-    analysis_option = st.selectbox("Wybierz rodzaj analizy", ["-","Chi-Square Test", "Odds ratio", "Hardy Weinberg"])
+    analysis_option = st.selectbox("Choose the type of analysis", ["-","Chi-Square Test", "Odds ratio", "Hardy Weinberg"])
 
-    st.write("## PODGLĄD DANYCH")
+    st.write("## DATA PREVIEW")
     st.dataframe(data.head())
 
     
@@ -27,6 +27,6 @@ def select_analysis(data):
         HW_analysis(data)
     
     #dodatkowy przyciski
-    if st.button("Powrót"):
+    if st.button("Back"):
         st.session_state.page = "menu"
         st.rerun()

@@ -9,10 +9,10 @@ def select_file():
     wymagane kolumny: 'Grupa', 'VDR FokI' i 'BSM'.
     """
 
-    st.title("WYBÓR PLIKU")
+    st.title("FILE SELECTION")
     
     # wybór pliku CSV
-    uploaded_file = st.file_uploader("Załaduj plik CSV", type=["csv"])
+    uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
     
     if uploaded_file is not None:
         # wczytanie danych z pliku CSV
@@ -22,7 +22,7 @@ def select_file():
             st.session_state.data = data  # przechowanie danych
             return data
         else:
-            st.error("Plik CSV musi zawierać kolumny: 'Grupa', 'VDR FokI' i 'BSM'.")
+            st.error("The CSV file must contain the columns: 'Grupa', 'VDR FokI', and 'BSM'.")
     else:
-        st.write("Proszę załadować plik CSV, aby rozpocząć.")
+        st.write("Please upload a CSV file to get started.")
         return None

@@ -22,16 +22,16 @@ def main():
         if 'data' in st.session_state:
             select_analysis(st.session_state.data)  # przejscie do analizy
         else:
-            st.write("Brak danych do analizy.")
+            st.write("No data available for analysis.")
         
 
     elif st.session_state.page == "menu":
         #przyciski po zakończeniu analizy
-        if st.button("Nowa analiza"):
+        if st.button("New analysis"):
             st.session_state.page = "analysis"  
             st.rerun()  
 
-        if st.button("Nowy plik"):
+        if st.button("New file"):
             st.session_state.page = "file"  
             st.rerun()  
 

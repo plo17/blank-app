@@ -50,7 +50,7 @@ def HW(data, locus):
     # Obliczanie częstości alleli
     total = aa + ab + bb
     if total == 0:
-        raise ValueError("Brak danych do analizy.")
+        raise ValueError("No data available for analysis.")
 
     p = (2 * aa + ab) / (2 * total)
     q = 1 - p
@@ -85,7 +85,7 @@ def OR(data, locus):
     con_table = pd.DataFrame({
         'Cancer': [A_cancer, B_cancer],
         'Control': [A_control, B_control]
-    }, index=['Allele A', 'Allele B'])
+    }, index=['Allel A', 'Allel B'])
 
     # Obliczanie odds ratio
     OR_value = Table2x2(con_table.values).oddsratio
@@ -101,13 +101,13 @@ def visualise(genotype, observed, expected):
 
     # Tworzenie wykresu
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.bar(genotype, observed, width, label='Obserwowane', color='skyblue')
-    ax.bar(genotype, expected, width, bottom=observed, label='Oczekiwane', color='lightgreen')
+    ax.bar(genotype, observed, width, label='Observed', color='skyblue')
+    ax.bar(genotype, expected, width, bottom=observed, label='Expected', color='lightgreen')
 
     # Dodanie tytułu i etykiet osi
-    ax.set_title('Porównanie obserwowanych i oczekiwanych liczby genotypów')
-    ax.set_xlabel('Genotyp')
-    ax.set_ylabel('Liczba')
+    ax.set_title('Comparison of Observed and Expected Genotype Numbers')
+    ax.set_xlabel('Genotype')
+    ax.set_ylabel('Count')
     ax.legend()
     return fig
 
@@ -130,8 +130,8 @@ def OR_analysis(data):
     for locus in ['VDR FokI', 'BSM']:
         OR_value, OR_confint, con_table = OR(data, locus)
 
-        st.write(f"### Analiza dla locus: {locus}")
-        st.write("#### Tabela 2x2:")
+        st.write(f"### Analysis for locus: {locus}")
+        st.write("#### 2x2 Table:")
         st.write(con_table)
 
         # Wyświetlanie wyników
@@ -157,7 +157,7 @@ def HW_analysis(data):
         częstości alleli (p, q), zaobserwowane liczby genotypów 
         oraz oczekiwane liczby genotypów dla danej grupy i locus.
     """
-    st.markdown(f"### Wyniki analizy Hardy'ego-Weinberga\n\n")
+    st.markdown(f"### Results of Hardy-Weinberg Equilibrium Analysis\n\n")
 
     col1, col2 = st.columns([1,1])
     for locus in ['VDR FokI', 'BSM']:
@@ -168,13 +168,13 @@ def HW_analysis(data):
             
             with col1:
                 st.markdown("  \n")
-                st.markdown(f"  \n**Grupa:** {group}  \n**Czynnik:** {locus}")
-                st.markdown(f"Częstość allelu p i q:\n**p:** {p:.2f}, **q:** {q:.2f}")
+                st.markdown(f"  \n**Group:** {group}  \n**Factor:** {locus}")
+                st.markdown(f"Allele frequencies (p and q):\n**p:** {p:.2f}, **q:** {q:.2f}")
 
                 results_df = pd.DataFrame({
-                    "Genotyp": ["AA", "AB", "BB"],
-                    "Obserwowana": observed,
-                    "Oczekiwana": [f"{e:.2f}" for e in expected]
+                    "Genotype": ["AA", "AB", "BB"],
+                    "Observed": observed,
+                    "Expected": [f"{e:.2f}" for e in expected]
                 })
                 st.dataframe(results_df)
 
@@ -200,9 +200,9 @@ def CHI2_analysis(data):
     value_col = st.selectbox("Select the value column", [col for col in data.columns if col != group_col])
     p_value, chi2_value, table = CHI2(data, group_col, value_col)
 
-    st.write("#### Tabela kontyngencji")
+    st.write("#### Contingency Table")
     st.dataframe(table)
-    # Wyświetlenie wyników
+    # wyniki
     st.write("#### Chi-Square Test Results")
     st.write(f"**Chi-Square Statistic:** {chi2_value:.4f}")
     st.write(f"**p-value:** {p_value:.4f}")
