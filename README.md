@@ -1,6 +1,12 @@
 # onco_analysis
 'onco_analysis' is a Python application utilizing the Streamlit framework, designed for the analysis of oncological data. This project enables users to load, clean, and analyze data, offering interactive visualizations and reports.
 
+This repository allows you to perform the following statistical calculations:
+
+- **Hardy-Weinberg Equilibrium**  
+- **Odds Ratio**  
+- **Chi-Square Test**  
+
 ## Features
 **Data Loading:** The **file_loader.py** module allows loading data from various file formats.
 
